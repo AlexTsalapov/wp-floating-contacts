@@ -1,0 +1,254 @@
+.wfc-widget {
+    position: fixed !important;
+    bottom: 32px !important;
+    z-index: 99999 !important;
+    font-family: Arial, sans-serif !important;
+}
+
+.wfc-right {
+    right: 32px !important;
+}
+
+.wfc-left {
+    left: 32px !important;
+}
+
+.wfc-widget .wfc-main-button {
+    width: 58px !important;
+    height: 58px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    border-radius: 50% !important;
+    background: var(--wfc-main-color, #25d366) !important;
+    background-color: var(--wfc-main-color, #25d366) !important;
+    overflow: hidden !important;
+    color: #ffffff !important;
+    cursor: pointer !important;
+    position: relative !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.18) !important;
+    transition: transform 0.22s ease, box-shadow 0.22s ease, background 0.22s ease !important;
+    opacity: 1 !important;
+    line-height: 1 !important;
+    font-size: 0 !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+}
+
+.wfc-widget .wfc-main-button:hover {
+    transform: scale(1.06) !important;
+    opacity: 1 !important;
+    background: var(--wfc-main-color, #25d366) !important;
+    background-color: var(--wfc-main-color, #25d366) !important;
+    box-shadow: 0 16px 38px rgba(0, 0, 0, 0.22) !important;
+}
+
+.wfc-widget .wfc-main-button:focus {
+    outline: none !important;
+}
+
+.wfc-widget .wfc-main-button:focus-visible {
+    outline: 3px solid rgba(37, 211, 102, 0.35) !important;
+    outline-offset: 4px !important;
+}
+
+.wfc-widget .wfc-main-icon {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: #ffffff !important;
+    pointer-events: none !important;
+    transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease !important;
+}
+
+.wfc-widget .wfc-main-icon svg {
+    display: block !important;
+    width: 30px !important;
+    height: 30px !important;
+}
+
+.wfc-widget .wfc-main-icon-chat {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: scale(1) rotate(0deg) !important;
+}
+
+.wfc-widget .wfc-main-icon-close {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transform: scale(0.45) rotate(-90deg) !important;
+}
+
+.wfc-widget.is-open .wfc-main-icon-chat {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transform: scale(0.45) rotate(90deg) !important;
+}
+
+.wfc-widget.is-open .wfc-main-icon-close {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: scale(1) rotate(0deg) !important;
+}
+
+.wfc-widget .wfc-channels {
+    position: absolute !important;
+    bottom: 72px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transform: translateY(18px) !important;
+    transition: opacity 0.22s ease, transform 0.22s ease !important;
+}
+
+.wfc-widget.wfc-right .wfc-channels {
+    right: 0 !important;
+    align-items: flex-end !important;
+}
+
+.wfc-widget.wfc-left .wfc-channels {
+    left: 0 !important;
+    align-items: flex-start !important;
+}
+
+.wfc-widget.is-open .wfc-channels {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    transform: translateY(0) !important;
+}
+
+.wfc-widget .wfc-channel {
+    width: auto !important;
+    min-width: unset !important;
+    max-width: none !important;
+    height: 38px !important;
+    padding: 0 16px !important;
+    margin: 0 !important;
+    border: none !important;
+    border-radius: 999px !important;
+    color: #ffffff !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    text-decoration: none !important;
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+    box-sizing: border-box !important;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2) !important;
+    transition: transform 0.22s ease, box-shadow 0.22s ease !important;
+    opacity: 1 !important;
+}
+
+.wfc-widget .wfc-channel:hover,
+.wfc-widget .wfc-channel:active,
+.wfc-widget .wfc-channel:focus {
+    transform: scale(1.04) !important;
+    opacity: 1 !important;
+    color: #ffffff !important;
+    text-decoration: none !important;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.24) !important;
+}
+
+.wfc-widget .wfc-channel:focus {
+    outline: none !important;
+}
+
+.wfc-widget .wfc-channel:focus-visible {
+    outline: 3px solid rgba(255, 255, 255, 0.45) !important;
+    outline-offset: 3px !important;
+}
+
+.wfc-widget .wfc-channel-icon {
+    width: 20px !important;
+    min-width: 20px !important;
+    height: 20px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex: 0 0 20px !important;
+    color: #ffffff !important;
+    line-height: 1 !important;
+}
+
+.wfc-widget .wfc-channel-icon svg {
+    width: 20px !important;
+    height: 20px !important;
+    display: block !important;
+    color: currentColor !important;
+}
+
+.wfc-widget .wfc-channel-label {
+    display: inline-block !important;
+    line-height: 1 !important;
+    color: #ffffff !important;
+}
+
+.wfc-widget .wfc-email {
+    background: #ff4266 !important;
+    background-color: #ff4266 !important;
+}
+
+.wfc-widget .wfc-whatsapp {
+    background: #25d366 !important;
+    background-color: #25d366 !important;
+}
+
+.wfc-widget .wfc-telegram {
+    background: #229ed9 !important;
+    background-color: #229ed9 !important;
+}
+
+.wfc-widget .wfc-phone {
+    background: #222222 !important;
+    background-color: #222222 !important;
+}
+.wfc-widget .wfc-telegram .wfc-channel-icon svg {
+    width: 18px !important;
+    height: 18px !important;
+}
+@media (max-width: 768px) {
+    .wfc-widget {
+        bottom: 22px !important;
+    }
+
+    .wfc-right {
+        right: 18px !important;
+    }
+
+    .wfc-left {
+        left: 18px !important;
+    }
+
+    .wfc-widget .wfc-main-button {
+        width: 56px !important;
+        height: 56px !important;
+    }
+
+    .wfc-widget .wfc-channels {
+        bottom: 70px !important;
+        gap: 10px !important;
+    }
+
+    .wfc-widget .wfc-channel {
+        width: auto !important;
+        min-width: unset !important;
+        max-width: none !important;
+        height: 36px !important;
+        padding: 0 14px !important;
+        font-size: 14px !important;
+        gap: 8px !important;
+    }
+}
