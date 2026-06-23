@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WP Floating Contacts
  * Description: Floating contact widget with WhatsApp, Telegram, Email and Phone buttons.
- * Version: 1.0.18
+ * Version: 1.0.20
  * Author: Tsala[pov]
  */
 
@@ -12,12 +12,15 @@ if (!defined('ABSPATH')) {
 
 class WP_Floating_Contacts {
     private string $option_name = 'wfc_settings';
+    private string $version_option_name = 'wfc_plugin_version';
+    private string $plugin_version = '1.0.20';
 
     public function __construct() {
         add_action('admin_menu', [$this, 'add_admin_page']);
         add_action('admin_init', [$this, 'register_settings']);
         add_action('wp_enqueue_scripts', [$this, 'enqueue_assets']);
         add_action('wp_footer', [$this, 'render_widget']);
+        add_action('init', [$this, 'maybe_upgrade_settings']);
     }
 
     public function get_default_settings(): array {
@@ -29,6 +32,14 @@ class WP_Floating_Contacts {
             'telegram_color' => '#229ed9',
             'email_color' => '#ff4266',
             'phone_color' => '#222222',
+
+            'button_size' => '58',
+            'icon_size' => '26',
+            'buttons_gap' => '10',
+            'offset_bottom' => '40',
+            'offset_side' => '40',
+            'mobile_offset_bottom' => '32',
+            'mobile_offset_side' => '24',
 
             'whatsapp_enabled' => '1',
             'whatsapp_label' => 'WhatsApp',
@@ -53,6 +64,35 @@ class WP_Floating_Contacts {
         return wp_parse_args($settings, $this->get_default_settings());
     }
 
+    public function maybe_upgrade_settings(): void {
+        $stored_version = get_option($this->version_option_name, '');
+
+        if (version_compare((string) $stored_version, '1.0.20', '>=')) {
+            return;
+        }
+
+        $settings = get_option($this->option_name, []);
+
+        if (is_array($settings) && !empty($settings)) {
+            $old_to_new_defaults = [
+                'offset_bottom' => ['32', '40'],
+                'offset_side' => ['32', '40'],
+                'mobile_offset_bottom' => ['22', '32'],
+                'mobile_offset_side' => ['18', '24'],
+            ];
+
+            foreach ($old_to_new_defaults as $key => [$old_value, $new_value]) {
+                if (!isset($settings[$key]) || (string) $settings[$key] === $old_value) {
+                    $settings[$key] = $new_value;
+                }
+            }
+
+            update_option($this->option_name, $settings);
+        }
+
+        update_option($this->version_option_name, $this->plugin_version);
+    }
+
     public function add_admin_page(): void {
         add_options_page(
             'Floating Contacts',
@@ -71,8 +111,21 @@ class WP_Floating_Contacts {
         );
     }
 
+    private function sanitize_number_setting($value, int $default, int $min, int $max): string {
+        $number = absint($value);
+
+        if ($number < $min || $number > $max) {
+            $number = $default;
+        }
+
+        return (string) $number;
+    }
+
     public function sanitize_settings($input): array {
         $input = is_array($input) ? $input : [];
+
+        $telegram_value = ltrim(sanitize_text_field($input['telegram_value'] ?? ''), '@');
+        $telegram_value = preg_replace('/[^A-Za-z0-9_]/', '', $telegram_value);
 
         return [
             'enabled' => !empty($input['enabled']) ? '1' : '0',
@@ -83,13 +136,21 @@ class WP_Floating_Contacts {
             'email_color' => sanitize_hex_color($input['email_color'] ?? '#ff4266') ?: '#ff4266',
             'phone_color' => sanitize_hex_color($input['phone_color'] ?? '#222222') ?: '#222222',
 
+            'button_size' => $this->sanitize_number_setting($input['button_size'] ?? 58, 58, 36, 96),
+            'icon_size' => $this->sanitize_number_setting($input['icon_size'] ?? 26, 26, 14, 64),
+            'buttons_gap' => $this->sanitize_number_setting($input['buttons_gap'] ?? 10, 10, 0, 40),
+            'offset_bottom' => $this->sanitize_number_setting($input['offset_bottom'] ?? 40, 40, 0, 160),
+            'offset_side' => $this->sanitize_number_setting($input['offset_side'] ?? 40, 40, 0, 160),
+            'mobile_offset_bottom' => $this->sanitize_number_setting($input['mobile_offset_bottom'] ?? 32, 32, 0, 120),
+            'mobile_offset_side' => $this->sanitize_number_setting($input['mobile_offset_side'] ?? 24, 24, 0, 120),
+
             'whatsapp_enabled' => !empty($input['whatsapp_enabled']) ? '1' : '0',
             'whatsapp_label' => sanitize_text_field($input['whatsapp_label'] ?? 'WhatsApp'),
-            'whatsapp_value' => sanitize_text_field($input['whatsapp_value'] ?? ''),
+            'whatsapp_value' => preg_replace('/[^0-9]/', '', $input['whatsapp_value'] ?? ''),
 
             'telegram_enabled' => !empty($input['telegram_enabled']) ? '1' : '0',
             'telegram_label' => sanitize_text_field($input['telegram_label'] ?? 'Telegram'),
-            'telegram_value' => sanitize_text_field($input['telegram_value'] ?? ''),
+            'telegram_value' => $telegram_value,
 
             'email_enabled' => !empty($input['email_enabled']) ? '1' : '0',
             'email_label' => sanitize_text_field($input['email_label'] ?? 'Email'),
@@ -97,7 +158,7 @@ class WP_Floating_Contacts {
 
             'phone_enabled' => !empty($input['phone_enabled']) ? '1' : '0',
             'phone_label' => sanitize_text_field($input['phone_label'] ?? 'Call us'),
-            'phone_value' => sanitize_text_field($input['phone_value'] ?? ''),
+            'phone_value' => preg_replace('/[^0-9+]/', '', $input['phone_value'] ?? ''),
         ];
     }
 
@@ -167,6 +228,52 @@ class WP_Floating_Contacts {
                             </label>
 
                             <p class="description">These colors are used for the round buttons in the dropdown list.</p>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th scope="row">Layout</th>
+                        <td>
+                            <label style="display:inline-block;margin-right:16px;margin-bottom:10px;">
+                                Button size, px
+                                <input type="number" min="36" max="96" name="<?php echo esc_attr($this->option_name); ?>[button_size]" value="<?php echo esc_attr($settings['button_size']); ?>" class="small-text">
+                            </label>
+
+                            <label style="display:inline-block;margin-right:16px;margin-bottom:10px;">
+                                Icon size, px
+                                <input type="number" min="14" max="64" name="<?php echo esc_attr($this->option_name); ?>[icon_size]" value="<?php echo esc_attr($settings['icon_size']); ?>" class="small-text">
+                            </label>
+
+                            <label style="display:inline-block;margin-right:16px;margin-bottom:10px;">
+                                Gap, px
+                                <input type="number" min="0" max="40" name="<?php echo esc_attr($this->option_name); ?>[buttons_gap]" value="<?php echo esc_attr($settings['buttons_gap']); ?>" class="small-text">
+                            </label>
+
+                            <br>
+
+                            <label style="display:inline-block;margin-right:16px;margin-bottom:10px;">
+                                Bottom offset, px
+                                <input type="number" min="0" max="160" name="<?php echo esc_attr($this->option_name); ?>[offset_bottom]" value="<?php echo esc_attr($settings['offset_bottom']); ?>" class="small-text">
+                            </label>
+
+                            <label style="display:inline-block;margin-right:16px;margin-bottom:10px;">
+                                Side offset, px
+                                <input type="number" min="0" max="160" name="<?php echo esc_attr($this->option_name); ?>[offset_side]" value="<?php echo esc_attr($settings['offset_side']); ?>" class="small-text">
+                            </label>
+
+                            <br>
+
+                            <label style="display:inline-block;margin-right:16px;margin-bottom:10px;">
+                                Mobile bottom offset, px
+                                <input type="number" min="0" max="120" name="<?php echo esc_attr($this->option_name); ?>[mobile_offset_bottom]" value="<?php echo esc_attr($settings['mobile_offset_bottom']); ?>" class="small-text">
+                            </label>
+
+                            <label style="display:inline-block;margin-right:16px;margin-bottom:10px;">
+                                Mobile side offset, px
+                                <input type="number" min="0" max="120" name="<?php echo esc_attr($this->option_name); ?>[mobile_offset_side]" value="<?php echo esc_attr($settings['mobile_offset_side']); ?>" class="small-text">
+                            </label>
+
+                            <p class="description">Button size controls both the main button and dropdown buttons. Side offset is applied to the selected left/right position.</p>
                         </td>
                     </tr>
                 </table>
@@ -258,14 +365,14 @@ class WP_Floating_Contacts {
             'wp-floating-contacts-style',
             plugin_dir_url(__FILE__) . 'assets/css/widget.css',
             [],
-            file_exists(plugin_dir_path(__FILE__) . 'assets/css/widget.css') ? filemtime(plugin_dir_path(__FILE__) . 'assets/css/widget.css') : '1.0.16'
+            file_exists(plugin_dir_path(__FILE__) . 'assets/css/widget.css') ? filemtime(plugin_dir_path(__FILE__) . 'assets/css/widget.css') : '1.0.19'
         );
 
         wp_enqueue_script(
             'wp-floating-contacts-script',
             plugin_dir_url(__FILE__) . 'assets/js/widget.js',
             [],
-            file_exists(plugin_dir_path(__FILE__) . 'assets/js/widget.js') ? filemtime(plugin_dir_path(__FILE__) . 'assets/js/widget.js') : '1.0.16',
+            file_exists(plugin_dir_path(__FILE__) . 'assets/js/widget.js') ? filemtime(plugin_dir_path(__FILE__) . 'assets/js/widget.js') : '1.0.19',
             true
         );
     }
@@ -377,7 +484,10 @@ class WP_Floating_Contacts {
         $position_class = $settings['position'] === 'left' ? 'wfc-left' : 'wfc-right';
         ?>
 
-        <div class="wfc-widget <?php echo esc_attr($position_class); ?>" style="--wfc-main-color: <?php echo esc_attr($settings['main_color']); ?>;">
+        <div
+            class="wfc-widget <?php echo esc_attr($position_class); ?>"
+            style="--wfc-main-color: <?php echo esc_attr($settings['main_color']); ?>; --wfc-size: <?php echo esc_attr($settings['button_size']); ?>px; --wfc-icon-size: <?php echo esc_attr($settings['icon_size']); ?>px; --wfc-gap: <?php echo esc_attr($settings['buttons_gap']); ?>px; --wfc-offset-bottom: <?php echo esc_attr($settings['offset_bottom']); ?>px; --wfc-offset-side: <?php echo esc_attr($settings['offset_side']); ?>px; --wfc-mobile-offset-bottom: <?php echo esc_attr($settings['mobile_offset_bottom']); ?>px; --wfc-mobile-offset-side: <?php echo esc_attr($settings['mobile_offset_side']); ?>px;"
+        >
             <button class="wfc-main-button" type="button" aria-label="Open contact options" aria-expanded="false">
                 <span class="wfc-main-icon wfc-main-icon-chat" aria-hidden="true">
                     <img class="wfc-main-icon-img" src="<?php echo esc_url($this->get_icon_url('chat')); ?>" alt="" decoding="async">

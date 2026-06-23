@@ -1,16 +1,8 @@
 .wfc-widget {
-    --wfc-size: 58px;
-    --wfc-mobile-size: 46px;
-    --wfc-icon-size: 30px;
-    --wfc-mobile-icon-size: 30px;
-    --wfc-offset-desktop: 32px;
-    --wfc-offset-mobile: 18px;
-    --wfc-gap: 10px;
-
     position: fixed;
-    bottom: var(--wfc-offset-desktop);
+    bottom: var(--wfc-offset-bottom, 32px);
     z-index: 99999;
-    width: var(--wfc-size);
+    width: var(--wfc-size, 58px);
     font-family: Arial, sans-serif;
     line-height: 1;
 }
@@ -21,21 +13,21 @@
 }
 
 .wfc-widget.wfc-right {
-    right: var(--wfc-offset-desktop);
+    right: var(--wfc-offset-side, 32px);
 }
 
 .wfc-widget.wfc-left {
-    left: var(--wfc-offset-desktop);
+    left: var(--wfc-offset-side, 32px);
 }
 
 .wfc-main-button,
 .wfc-channel {
-    width: var(--wfc-size);
-    height: var(--wfc-size);
-    min-width: var(--wfc-size);
-    max-width: var(--wfc-size);
-    min-height: var(--wfc-size);
-    max-height: var(--wfc-size);
+    width: var(--wfc-size, 58px);
+    height: var(--wfc-size, 58px);
+    min-width: var(--wfc-size, 58px);
+    max-width: var(--wfc-size, 58px);
+    min-height: var(--wfc-size, 58px);
+    max-height: var(--wfc-size, 58px);
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -85,10 +77,11 @@
     transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
 }
 
-.wfc-main-icon-img {
+.wfc-main-icon-img,
+.wfc-channel-icon img {
     display: block;
-    width: 30px;
-    height: 30px;
+    width: var(--wfc-icon-size, 26px);
+    height: var(--wfc-icon-size, 26px);
     object-fit: contain;
     filter: brightness(0) invert(1);
 }
@@ -119,12 +112,12 @@
 
 .wfc-channels {
     position: absolute;
-    bottom: calc(var(--wfc-size) + 14px);
-    width: var(--wfc-size);
+    bottom: calc(var(--wfc-size, 58px) + 14px);
+    width: var(--wfc-size, 58px);
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: var(--wfc-gap);
+    gap: var(--wfc-gap, 10px);
     opacity: 0;
     pointer-events: none;
     transform: translateY(18px);
@@ -183,25 +176,12 @@
 }
 
 .wfc-channel-icon {
-    width: var(--wfc-icon-size);
-    height: var(--wfc-icon-size);
-    flex: 0 0 var(--wfc-icon-size);
+    width: var(--wfc-icon-size, 26px);
+    height: var(--wfc-icon-size, 26px);
+    flex: 0 0 var(--wfc-icon-size, 26px);
     display: inline-flex;
     align-items: center;
     justify-content: center;
-}
-
-.wfc-channel-icon img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    filter: brightness(0) invert(1);
-}
-
-.wfc-telegram .wfc-channel-icon img {
-    width: 24px;
-    height: 24px;
 }
 
 .wfc-channel-label {
@@ -210,22 +190,14 @@
 
 @media (max-width: 768px) {
     .wfc-widget {
-        --wfc-size: var(--wfc-mobile-size);
-        --wfc-icon-size: var(--wfc-mobile-icon-size);
-
-        bottom: 22px;
+        bottom: var(--wfc-mobile-offset-bottom, 22px);
     }
 
     .wfc-widget.wfc-right {
-        right: var(--wfc-offset-mobile);
+        right: var(--wfc-mobile-offset-side, 18px);
     }
 
     .wfc-widget.wfc-left {
-        left: var(--wfc-offset-mobile);
-    }
-
-    .wfc-telegram .wfc-channel-icon img {
-        width: 23px;
-        height: 23px;
+        left: var(--wfc-mobile-offset-side, 18px);
     }
 }
