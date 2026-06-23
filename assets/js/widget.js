@@ -26,6 +26,12 @@ document.addEventListener('DOMContentLoaded', function () {
             const isOpen = widget.classList.toggle('is-open');
             button.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
         });
+
+        widget.querySelectorAll('.wfc-channel').forEach(function (link) {
+            link.addEventListener('click', function () {
+                closeAll();
+            });
+        });
     });
 
     document.addEventListener('click', function (event) {

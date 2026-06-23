@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WP Floating Contacts
  * Description: Floating contact widget with WhatsApp, Telegram, Email and Phone buttons.
- * Version: 1.0.20
+ * Version: 1.0.22
  * Author: Tsala[pov]
  */
 
@@ -13,7 +13,8 @@ if (!defined('ABSPATH')) {
 class WP_Floating_Contacts {
     private string $option_name = 'wfc_settings';
     private string $version_option_name = 'wfc_plugin_version';
-    private string $plugin_version = '1.0.20';
+    private string $assets_version_option_name = 'wfc_assets_version';
+    private string $plugin_version = '1.0.21';
 
     public function __construct() {
         add_action('admin_menu', [$this, 'add_admin_page']);
@@ -21,6 +22,8 @@ class WP_Floating_Contacts {
         add_action('wp_enqueue_scripts', [$this, 'enqueue_assets']);
         add_action('wp_footer', [$this, 'render_widget']);
         add_action('init', [$this, 'maybe_upgrade_settings']);
+        add_action('update_option_' . $this->option_name, [$this, 'clear_caches_after_settings_update'], 10, 3);
+        add_action('add_option_' . $this->option_name, [$this, 'clear_caches_after_settings_add'], 10, 2);
     }
 
     public function get_default_settings(): array {
@@ -67,7 +70,7 @@ class WP_Floating_Contacts {
     public function maybe_upgrade_settings(): void {
         $stored_version = get_option($this->version_option_name, '');
 
-        if (version_compare((string) $stored_version, '1.0.20', '>=')) {
+        if (version_compare((string) $stored_version, '1.0.21', '>=')) {
             return;
         }
 
@@ -91,6 +94,44 @@ class WP_Floating_Contacts {
         }
 
         update_option($this->version_option_name, $this->plugin_version);
+    }
+
+    public function clear_caches_after_settings_add(string $option, $value): void {
+        $this->clear_caches_after_settings_update(null, $value, $option);
+    }
+
+    public function clear_caches_after_settings_update($old_value, $value, string $option): void {
+        update_option($this->assets_version_option_name, (string) time(), false);
+
+        if (function_exists('wp_cache_flush')) {
+            wp_cache_flush();
+        }
+
+        if (function_exists('rocket_clean_domain')) {
+            rocket_clean_domain();
+        }
+
+        if (function_exists('w3tc_flush_all')) {
+            w3tc_flush_all();
+        }
+
+        if (function_exists('wp_cache_clear_cache')) {
+            wp_cache_clear_cache();
+        }
+
+        if (function_exists('sg_cachepress_purge_cache')) {
+            sg_cachepress_purge_cache();
+        }
+
+        if (class_exists('LiteSpeed_Cache_API') && method_exists('LiteSpeed_Cache_API', 'purge_all')) {
+            LiteSpeed_Cache_API::purge_all();
+        } elseif (has_action('litespeed_purge_all')) {
+            do_action('litespeed_purge_all');
+        }
+
+        if (class_exists('autoptimizeCache') && method_exists('autoptimizeCache', 'clearall')) {
+            autoptimizeCache::clearall();
+        }
     }
 
     public function add_admin_page(): void {
@@ -127,6 +168,10 @@ class WP_Floating_Contacts {
         $telegram_value = ltrim(sanitize_text_field($input['telegram_value'] ?? ''), '@');
         $telegram_value = preg_replace('/[^A-Za-z0-9_]/', '', $telegram_value);
 
+        $email_value = sanitize_text_field($input['email_value'] ?? '');
+        $email_value = preg_replace('/^mailto:/i', '', trim($email_value));
+        $email_value = sanitize_email($email_value);
+
         return [
             'enabled' => !empty($input['enabled']) ? '1' : '0',
             'position' => in_array($input['position'] ?? 'right', ['right', 'left'], true) ? $input['position'] : 'right',
@@ -154,7 +199,7 @@ class WP_Floating_Contacts {
 
             'email_enabled' => !empty($input['email_enabled']) ? '1' : '0',
             'email_label' => sanitize_text_field($input['email_label'] ?? 'Email'),
-            'email_value' => sanitize_email($input['email_value'] ?? ''),
+            'email_value' => $email_value,
 
             'phone_enabled' => !empty($input['phone_enabled']) ? '1' : '0',
             'phone_label' => sanitize_text_field($input['phone_label'] ?? 'Call us'),
@@ -354,6 +399,14 @@ class WP_Floating_Contacts {
         <?php
     }
 
+    private function get_asset_version(string $relative_path): string {
+        $path = plugin_dir_path(__FILE__) . $relative_path;
+        $file_version = file_exists($path) ? (string) filemtime($path) : $this->plugin_version;
+        $settings_version = (string) get_option($this->assets_version_option_name, '');
+
+        return $settings_version !== '' ? $file_version . '-' . $settings_version : $file_version;
+    }
+
     public function enqueue_assets(): void {
         $settings = $this->get_settings();
 
@@ -365,14 +418,14 @@ class WP_Floating_Contacts {
             'wp-floating-contacts-style',
             plugin_dir_url(__FILE__) . 'assets/css/widget.css',
             [],
-            file_exists(plugin_dir_path(__FILE__) . 'assets/css/widget.css') ? filemtime(plugin_dir_path(__FILE__) . 'assets/css/widget.css') : '1.0.19'
+            $this->get_asset_version('assets/css/widget.css')
         );
 
         wp_enqueue_script(
             'wp-floating-contacts-script',
             plugin_dir_url(__FILE__) . 'assets/js/widget.js',
             [],
-            file_exists(plugin_dir_path(__FILE__) . 'assets/js/widget.js') ? filemtime(plugin_dir_path(__FILE__) . 'assets/js/widget.js') : '1.0.19',
+            $this->get_asset_version('assets/js/widget.js'),
             true
         );
     }
@@ -394,7 +447,10 @@ class WP_Floating_Contacts {
                 return $username ? 'https://t.me/' . rawurlencode($username) : '';
 
             case 'email':
-                return is_email($value) ? 'mailto:' . sanitize_email($value) : '';
+                $email = preg_replace('/^mailto:/i', '', trim($value));
+                $email = sanitize_email($email);
+
+                return is_email($email) ? 'mailto:' . $email : '';
 
             case 'phone':
                 $phone = preg_replace('/[^0-9+]/', '', $value);
@@ -473,6 +529,8 @@ class WP_Floating_Contacts {
 
             if ($channel['enabled'] === '1' && $url !== '') {
                 $channel['url'] = $url;
+                $channel['type'] = $type;
+                $channel['opens_new_tab'] = in_array($type, ['whatsapp', 'telegram'], true);
                 $visible_channels[$type] = $channel;
             }
         }
@@ -502,9 +560,9 @@ class WP_Floating_Contacts {
                 <?php foreach ($visible_channels as $channel): ?>
                     <a
                         href="<?php echo esc_url($channel['url']); ?>"
-                        target="_blank"
-                        rel="noopener noreferrer"
+                        <?php if (!empty($channel['opens_new_tab'])): ?>target="_blank" rel="noopener noreferrer"<?php endif; ?>
                         class="wfc-channel <?php echo esc_attr($channel['class']); ?>"
+                        data-wfc-type="<?php echo esc_attr($channel['type']); ?>"
                         style="--wfc-channel-color: <?php echo esc_attr($channel['color']); ?>;"
                         aria-label="<?php echo esc_attr($channel['label']); ?>"
                         title="<?php echo esc_attr($channel['label']); ?>"
