@@ -1,254 +1,231 @@
 .wfc-widget {
-    position: fixed !important;
-    bottom: 32px !important;
-    z-index: 99999 !important;
-    font-family: Arial, sans-serif !important;
+    --wfc-size: 58px;
+    --wfc-mobile-size: 56px;
+    --wfc-icon-size: 30px;
+    --wfc-mobile-icon-size: 30px;
+    --wfc-offset-desktop: 32px;
+    --wfc-offset-mobile: 18px;
+    --wfc-gap: 10px;
+
+    position: fixed;
+    bottom: var(--wfc-offset-desktop);
+    z-index: 99999;
+    width: var(--wfc-size);
+    font-family: Arial, sans-serif;
+    line-height: 1;
 }
 
-.wfc-right {
-    right: 32px !important;
+.wfc-widget,
+.wfc-widget * {
+    box-sizing: border-box;
 }
 
-.wfc-left {
-    left: 32px !important;
+.wfc-widget.wfc-right {
+    right: var(--wfc-offset-desktop);
 }
 
-.wfc-widget .wfc-main-button {
-    width: 58px !important;
-    height: 58px !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    border: none !important;
-    border-radius: 50% !important;
-    background: var(--wfc-main-color, #25d366) !important;
-    background-color: var(--wfc-main-color, #25d366) !important;
-    overflow: hidden !important;
-    color: #ffffff !important;
-    cursor: pointer !important;
-    position: relative !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.18) !important;
-    transition: transform 0.22s ease, box-shadow 0.22s ease, background 0.22s ease !important;
-    opacity: 1 !important;
-    line-height: 1 !important;
-    font-size: 0 !important;
-    appearance: none !important;
-    -webkit-appearance: none !important;
+.wfc-widget.wfc-left {
+    left: var(--wfc-offset-desktop);
 }
 
-.wfc-widget .wfc-main-button:hover {
-    transform: scale(1.06) !important;
-    opacity: 1 !important;
-    background: var(--wfc-main-color, #25d366) !important;
-    background-color: var(--wfc-main-color, #25d366) !important;
-    box-shadow: 0 16px 38px rgba(0, 0, 0, 0.22) !important;
+.wfc-main-button,
+.wfc-channel {
+    width: var(--wfc-size);
+    height: var(--wfc-size);
+    min-width: var(--wfc-size);
+    max-width: var(--wfc-size);
+    min-height: var(--wfc-size);
+    max-height: var(--wfc-size);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    border-radius: 50%;
+    color: #ffffff;
+    cursor: pointer;
+    text-decoration: none;
+    line-height: 1;
+    font-size: 0;
+    overflow: hidden;
+    appearance: none;
+    -webkit-appearance: none;
 }
 
-.wfc-widget .wfc-main-button:focus {
-    outline: none !important;
+.wfc-main-button {
+    position: relative;
+    background: var(--wfc-main-color, #25d366);
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.18);
+    transition: transform 0.22s ease, box-shadow 0.22s ease;
 }
 
-.wfc-widget .wfc-main-button:focus-visible {
-    outline: 3px solid rgba(37, 211, 102, 0.35) !important;
-    outline-offset: 4px !important;
+.wfc-main-button:hover {
+    transform: scale(1.06);
+    box-shadow: 0 16px 38px rgba(0, 0, 0, 0.22);
 }
 
-.wfc-widget .wfc-main-icon {
-    position: absolute !important;
-    inset: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    color: #ffffff !important;
-    pointer-events: none !important;
-    transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease !important;
+.wfc-main-button:focus,
+.wfc-channel:focus {
+    outline: none;
 }
 
-.wfc-widget .wfc-main-icon svg {
-    display: block !important;
-    width: 30px !important;
-    height: 30px !important;
+.wfc-main-button:focus-visible {
+    outline: 3px solid rgba(37, 211, 102, 0.35);
+    outline-offset: 4px;
 }
 
-.wfc-widget .wfc-main-icon-chat {
-    opacity: 1 !important;
-    visibility: visible !important;
-    transform: scale(1) rotate(0deg) !important;
+.wfc-main-icon {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
 }
 
-.wfc-widget .wfc-main-icon-close {
-    opacity: 0 !important;
-    visibility: hidden !important;
-    transform: scale(0.45) rotate(-90deg) !important;
+.wfc-main-icon-img {
+    display: block;
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
+    filter: brightness(0) invert(1);
+}
+
+.wfc-main-icon-chat {
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1) rotate(0deg);
+}
+
+.wfc-main-icon-close {
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0.45) rotate(-90deg);
 }
 
 .wfc-widget.is-open .wfc-main-icon-chat {
-    opacity: 0 !important;
-    visibility: hidden !important;
-    transform: scale(0.45) rotate(90deg) !important;
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0.45) rotate(90deg);
 }
 
 .wfc-widget.is-open .wfc-main-icon-close {
-    opacity: 1 !important;
-    visibility: visible !important;
-    transform: scale(1) rotate(0deg) !important;
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1) rotate(0deg);
 }
 
-.wfc-widget .wfc-channels {
-    position: absolute !important;
-    bottom: 72px !important;
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 10px !important;
-    opacity: 0 !important;
-    pointer-events: none !important;
-    transform: translateY(18px) !important;
-    transition: opacity 0.22s ease, transform 0.22s ease !important;
+.wfc-channels {
+    position: absolute;
+    bottom: calc(var(--wfc-size) + 14px);
+    width: var(--wfc-size);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--wfc-gap);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(18px);
+    transition: opacity 0.22s ease, transform 0.22s ease;
 }
 
 .wfc-widget.wfc-right .wfc-channels {
-    right: 0 !important;
-    align-items: flex-end !important;
+    right: 0;
 }
 
 .wfc-widget.wfc-left .wfc-channels {
-    left: 0 !important;
-    align-items: flex-start !important;
+    left: 0;
 }
 
 .wfc-widget.is-open .wfc-channels {
-    opacity: 1 !important;
-    pointer-events: auto !important;
-    transform: translateY(0) !important;
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
 }
 
-.wfc-widget .wfc-channel {
-    width: auto !important;
-    min-width: unset !important;
-    max-width: none !important;
-    height: 38px !important;
-    padding: 0 16px !important;
-    margin: 0 !important;
-    border: none !important;
-    border-radius: 999px !important;
-    color: #ffffff !important;
-    cursor: pointer !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 8px !important;
-    text-decoration: none !important;
-    font-size: 15px !important;
-    font-weight: 700 !important;
-    line-height: 1 !important;
-    white-space: nowrap !important;
-    box-sizing: border-box !important;
-    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2) !important;
-    transition: transform 0.22s ease, box-shadow 0.22s ease !important;
-    opacity: 1 !important;
+.wfc-channel {
+    background: var(--wfc-channel-color, #222222);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2);
+    transition: transform 0.22s ease, box-shadow 0.22s ease;
 }
 
-.wfc-widget .wfc-channel:hover,
-.wfc-widget .wfc-channel:active,
-.wfc-widget .wfc-channel:focus {
-    transform: scale(1.04) !important;
-    opacity: 1 !important;
-    color: #ffffff !important;
-    text-decoration: none !important;
-    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.24) !important;
+.wfc-channel:hover,
+.wfc-channel:active,
+.wfc-channel:focus {
+    color: #ffffff;
+    background: var(--wfc-channel-color, #222222);
+    text-decoration: none;
+    transform: scale(1.04);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.24);
 }
 
-.wfc-widget .wfc-channel:focus {
-    outline: none !important;
+.wfc-whatsapp {
+    --wfc-channel-color: #25d366;
 }
 
-.wfc-widget .wfc-channel:focus-visible {
-    outline: 3px solid rgba(255, 255, 255, 0.45) !important;
-    outline-offset: 3px !important;
+.wfc-telegram {
+    --wfc-channel-color: #229ed9;
 }
 
-.wfc-widget .wfc-channel-icon {
-    width: 20px !important;
-    min-width: 20px !important;
-    height: 20px !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    flex: 0 0 20px !important;
-    color: #ffffff !important;
-    line-height: 1 !important;
+.wfc-email {
+    --wfc-channel-color: #ff4266;
 }
 
-.wfc-widget .wfc-channel-icon svg {
-    width: 20px !important;
-    height: 20px !important;
-    display: block !important;
-    color: currentColor !important;
+.wfc-phone {
+    --wfc-channel-color: #222222;
 }
 
-.wfc-widget .wfc-channel-label {
-    display: inline-block !important;
-    line-height: 1 !important;
-    color: #ffffff !important;
+.wfc-channel:focus-visible {
+    outline: 3px solid rgba(255, 255, 255, 0.45);
+    outline-offset: 3px;
 }
 
-.wfc-widget .wfc-email {
-    background: #ff4266 !important;
-    background-color: #ff4266 !important;
+.wfc-channel-icon {
+    width: var(--wfc-icon-size);
+    height: var(--wfc-icon-size);
+    flex: 0 0 var(--wfc-icon-size);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.wfc-widget .wfc-whatsapp {
-    background: #25d366 !important;
-    background-color: #25d366 !important;
+.wfc-channel-icon img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: brightness(0) invert(1);
 }
 
-.wfc-widget .wfc-telegram {
-    background: #229ed9 !important;
-    background-color: #229ed9 !important;
+.wfc-telegram .wfc-channel-icon img {
+    width: 24px;
+    height: 24px;
 }
 
-.wfc-widget .wfc-phone {
-    background: #222222 !important;
-    background-color: #222222 !important;
+.wfc-channel-label {
+    display: none;
 }
-.wfc-widget .wfc-telegram .wfc-channel-icon svg {
-    width: 18px !important;
-    height: 18px !important;
-}
+
 @media (max-width: 768px) {
     .wfc-widget {
-        bottom: 22px !important;
+        --wfc-size: var(--wfc-mobile-size);
+        --wfc-icon-size: var(--wfc-mobile-icon-size);
+
+        bottom: 22px;
     }
 
-    .wfc-right {
-        right: 18px !important;
+    .wfc-widget.wfc-right {
+        right: var(--wfc-offset-mobile);
     }
 
-    .wfc-left {
-        left: 18px !important;
+    .wfc-widget.wfc-left {
+        left: var(--wfc-offset-mobile);
     }
 
-    .wfc-widget .wfc-main-button {
-        width: 56px !important;
-        height: 56px !important;
-    }
-
-    .wfc-widget .wfc-channels {
-        bottom: 70px !important;
-        gap: 10px !important;
-    }
-
-    .wfc-widget .wfc-channel {
-        width: auto !important;
-        min-width: unset !important;
-        max-width: none !important;
-        height: 36px !important;
-        padding: 0 14px !important;
-        font-size: 14px !important;
-        gap: 8px !important;
+    .wfc-telegram .wfc-channel-icon img {
+        width: 23px;
+        height: 23px;
     }
 }
